@@ -1,4 +1,11 @@
 import os
+import pickle
+
+# Function for pickling gCollection to the file notes.
+def pickleOut():
+    pickle_out = open("Notes","wb")
+    pickle.dump(gCollection, pickle_out)
+    pickle_out.close()
 
 # Used to clear screen
 def clear():
@@ -35,7 +42,7 @@ def Menu():
         About()
 
     elif select == "4":
-        return
+        return None
 
     else:
         Menu()
@@ -53,11 +60,24 @@ def NoteCollections():
         if select == "b":
             Menu()
 
+        if select == "a":
+            AddCollection()
+
         elif int(select) > 0 and int(select) <= len(gCollection):
             NotesList(int(select) - 1)
     except:
         NoteCollections()
 
+# Adding a new collection 
+def AddCollection():
+        clear()
+        print("\nAdd Collection: ")
+        print("----------------")
+        title = input("Collection name: ")
+        completedCollection = Note_Collection(title)
+        gCollection.append(completedCollection)
+        NoteCollections()
+        pickleOut()
 
 # Shows list of notes of a particular collection
 def NotesList(collectionNo):
@@ -67,13 +87,17 @@ def NotesList(collectionNo):
     for x in range(0, len(gCollection[collectionNo].notes)):
         print("{0}.{1}".format(x + 1,gCollection[collectionNo].notes[x].title))
 
-    select = input("\na - Add note, 1-{} - View note, b - Go back ".format(len(gCollection[collectionNo].notes)))
+    select = input("\na - Add note, 1-{} - View note{}, b - Go back ".format(len(gCollection[collectionNo].notes,),"" if collectionNo == 0 else ", d - Delete collection"))
     try:
         if select == "b":
             NoteCollections()
 
         elif select == "a":
             AddNote(gCollection[collectionNo])
+
+        elif select == "d" and collectionNo != 0:
+            gCollection.pop(collectionNo)
+            NoteCollections()
 
         elif int(select) > 0 and int(select) <= len(gCollection[collectionNo].notes):
             ViewNote(gCollection[collectionNo],int(select) - 1)
@@ -92,6 +116,7 @@ def ViewNote(collection,noteNo):
         NotesList(gCollection.index(collection))
     elif select == "d":
         collection.remove_note(noteNo)
+        pickleOut()
         NotesList(gCollection.index(collection))
     else:
         ViewNote(collection,noteNo)
@@ -106,6 +131,7 @@ def AddNote(collection):
     completedNote = Note(title,note)
     collection.add_note(completedNote)
     NotesList(gCollection.index(collection))
+    pickleOut()
 
 # Talks about program
 def About():
@@ -120,19 +146,28 @@ def About():
     else:
         About()
 
-#Example notes
-gCollection = list() #Used for holding all note collections.
-general = Note_Collection("General")
-animals = Note_Collection("Animals")
-gCollection.append(general)
-gCollection.append(animals)
+# Try: checks if Notes file is already created.
+try:
+    pickle_in = open("Notes","rb")
+    gCollection = pickle.load(pickle_in)
+    pickle_in.close()
 
-note1 = Note("Hello","Hello World!")
-note2 = Note("Shopping List","Bread, Milk, Ham")
-note3 = Note("Favourite Colour","Blue")
+# If not, then new gCollection is created and pickles the collection.
+except:
+    gCollection = list() #Used for holding all note collections.
 
-general.add_note(note1)
-general.add_note(note2)
-general.add_note(note3)
+    #Example notes
+    general = Note_Collection("General")
+    animals = Note_Collection("Animals")
+    gCollection.append(general)
+    gCollection.append(animals)
 
+    note1 = Note("Hello","Hello World!")
+    note2 = Note("Shopping List","Bread, Milk, Ham")
+    note3 = Note("Favourite Colour","Blue")
+
+    general.add_note(note1)
+    general.add_note(note2)
+    general.add_note(note3)
+    pickleOut()
 Menu()
