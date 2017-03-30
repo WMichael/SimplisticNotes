@@ -3,5 +3,5 @@
 
 ## To-Do:
 + ~~Note collection & Note classes~~
-+ Interface
++ ~~Interface~~
 + Pickling of Objects
